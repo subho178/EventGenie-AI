@@ -8,6 +8,7 @@ client/node_modules/
 .env.*.local
 
 # Production Build
+dist/
 client/dist/
 
 # Persistent data directory

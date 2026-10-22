@@ -9,9 +9,8 @@
     "dev:server": "node --watch server/index.js",
     "dev:client": "npm --prefix client run dev",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "build": "vite build client",
+    "build": "vite build client --outDir ../dist --emptyOutDir && vite build client --emptyOutDir",
     "build:client": "vite build client",
-    "vercel-build": "npm --prefix client install && npm --prefix client run build",
     "test": "node --test server/tests/*.test.js",
     "test:client": "npm --prefix client run test"
   },
@@ -31,6 +30,7 @@
   "dependencies": {
     "@google/genai": "^2.30.0",
     "@google/generative-ai": "^0.24.1",
+    "@vitejs/plugin-react": "^6.1.2",
     "canvas-confetti": "^1.9.4",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -41,12 +41,11 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "uuid": "^11.1.0",
+    "vite": "^8.3.4",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^6.1.2",
     "concurrently": "^9.1.2",
-    "supertest": "^7.0.0",
-    "vite": "^8.3.4"
+    "supertest": "^7.0.0"
   }
 }
