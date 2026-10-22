@@ -1,0 +1,41 @@
+{
+  "name": "eventgenie-ai",
+  "version": "1.0.0",
+  "description": "EventGenie AI - Intelligent, Personalized Event Planning Assistant powered by Generative AI",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev:server": "node --watch server/index.js",
+    "dev:client": "npm.cmd --prefix client run dev",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build:client": "npm.cmd --prefix client run build",
+    "test": "node --test server/tests/*.test.js",
+    "test:client": "npm.cmd --prefix client run test"
+  },
+  "keywords": [
+    "event-planner",
+    "generative-ai",
+    "gemini",
+    "hackathon",
+    "budget-planner",
+    "timeline-generator"
+  ],
+  "author": "Antigravity Team",
+  "license": "MIT",
+  "dependencies": {
+    "@google/genai": "^2.30.0",
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "supertest": "^7.0.0"
+  }
+}
