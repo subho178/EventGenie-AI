@@ -62,7 +62,7 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // 5. API Health Check Endpoint
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -71,10 +71,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 6. Registered Feature Routes
+// 6. Registered Feature Routes (supports both /api/* and direct path for serverless)
 app.use('/api/events', eventRoutes);
+app.use('/events', eventRoutes);
+
 app.use('/api/ai', aiRoutes);
+app.use('/ai', aiRoutes);
+
 app.use('/api/export', exportRoutes);
+app.use('/export', exportRoutes);
 
 // 7. Serve Static Frontend in Production
 const clientDistPath = path.resolve(__dirname, '../client/dist');

@@ -82,14 +82,19 @@ router.post('/', async (req, res) => {
     const validatedData = parseResult.data;
     const customKey = req.headers['x-gemini-api-key'] || null;
 
-    // Generate complete plan using Gemini or Algorithmic Fallback
-    const plan = await generateFullEventPlan(validatedData, customKey);
+    let plan;
+    try {
+      plan = await generateFullEventPlan(validatedData, customKey);
+    } catch (aiErr) {
+      console.warn('AI generation exception, falling back to algorithmic engine:', aiErr.message);
+      plan = generateAlgorithmicPlan(validatedData);
+    }
 
     const newEvent = {
       id: `event-${uuidv4()}`,
       ...validatedData,
-      generationMode: plan.generationMode,
-      aiModelUsed: plan.aiModelUsed,
+      generationMode: plan.generationMode || 'demo',
+      aiModelUsed: plan.aiModelUsed || 'EventGenie Algorithmic Planning Engine',
       aiErrorNotice: plan.aiErrorNotice || null,
       summary: {
         concept: plan.concept,
@@ -103,11 +108,20 @@ router.post('/', async (req, res) => {
       updatedAt: new Date().toISOString()
     };
 
-    const saved = saveEvent(newEvent);
+    let saved = newEvent;
+    try {
+      saved = saveEvent(newEvent);
+    } catch (storageErr) {
+      console.warn('Persistence warning (non-fatal):', storageErr.message);
+    }
+
     res.status(201).json({ success: true, data: saved });
   } catch (err) {
-    console.error('Event creation error:', err);
-    res.status(500).json({ success: false, error: 'Failed to create and generate event plan' });
+    console.error('Event creation critical error:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: `Failed to create event plan: ${err.message || 'Unknown error'}` 
+    });
   }
 });
 

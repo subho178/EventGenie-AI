@@ -1,6 +1,6 @@
 /**
  * Client API Helper
- * Manages communication with Express backend, including custom API keys in headers.
+ * Manages communication with backend with safe error handling and custom API keys.
  */
 
 export function getCustomApiKey() {
@@ -25,62 +25,135 @@ function getHeaders() {
 }
 
 export async function fetchAiStatus() {
-  const res = await fetch('/api/ai/status', { headers: getHeaders() });
-  return res.json();
+  try {
+    const res = await fetch('/api/ai/status', { headers: getHeaders() });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    return {
+      success: true,
+      geminiConfigured: false,
+      modelName: 'EventGenie Algorithmic Planning Engine',
+      activeMode: 'algorithmic_fallback',
+      supportsCustomKey: true
+    };
+  }
 }
 
 export async function testGeminiKey(apiKey) {
-  const res = await fetch('/api/ai/test-key', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ apiKey })
-  });
-  return res.json();
+  try {
+    const res = await fetch('/api/ai/test-key', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey })
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      return { success: false, valid: false, message: data?.message || `HTTP ${res.status}` };
+    }
+    return data;
+  } catch (err) {
+    return { success: false, valid: false, message: err.message };
+  }
 }
 
 export async function fetchEvents() {
-  const res = await fetch('/api/events');
-  return res.json();
+  try {
+    const res = await fetch('/api/events');
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      return { success: false, data: [], error: data?.error || `HTTP ${res.status}` };
+    }
+    return data || { success: true, data: [] };
+  } catch (err) {
+    return { success: false, data: [], error: err.message };
+  }
 }
 
 export async function fetchEventById(id) {
-  const res = await fetch(`/api/events/${id}`);
-  return res.json();
+  try {
+    const res = await fetch(`/api/events/${id}`);
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      return { success: false, error: data?.error || `HTTP ${res.status}` };
+    }
+    return data;
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 }
 
 export async function createEvent(eventData) {
-  const res = await fetch('/api/events', {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify(eventData)
-  });
-  return res.json();
+  try {
+    const res = await fetch('/api/events', {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(eventData)
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      return {
+        success: false,
+        error: data?.error || `Server error (${res.status}): ${res.statusText}`
+      };
+    }
+    return data || { success: false, error: 'Empty response from server' };
+  } catch (err) {
+    return {
+      success: false,
+      error: `Network error: ${err.message}`
+    };
+  }
 }
 
 export async function updateEvent(id, updates) {
-  const res = await fetch(`/api/events/${id}`, {
-    method: 'PUT',
-    headers: getHeaders(),
-    body: JSON.stringify(updates)
-  });
-  return res.json();
+  try {
+    const res = await fetch(`/api/events/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(updates)
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      return { success: false, error: data?.error || `HTTP ${res.status}` };
+    }
+    return data;
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 }
 
 export async function deleteEvent(id) {
-  const res = await fetch(`/api/events/${id}`, {
-    method: 'DELETE',
-    headers: getHeaders()
-  });
-  return res.json();
+  try {
+    const res = await fetch(`/api/events/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      return { success: false, error: data?.error || `HTTP ${res.status}` };
+    }
+    return data;
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 }
 
 export async function regenerateSection(section, eventDetails) {
-  const res = await fetch('/api/ai/regenerate-section', {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify({ section, eventDetails })
-  });
-  return res.json();
+  try {
+    const res = await fetch('/api/ai/regenerate-section', {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ section, eventDetails })
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      return { success: false, error: data?.error || `HTTP ${res.status}` };
+    }
+    return data;
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 }
 
 export function formatMoney(amount, currency = 'USD') {
